@@ -1,7 +1,7 @@
-ALL Digital Phase Locked Loop
+ALL Digital Phase Locked Loop  
 Team ID: elec_7
 
-About the project:
+About the project:  
 An All-Digital Phase-Locked Loop (ADPLL) is a clock generation and synchronization system that replaces the
 analog components of a conventional Phase-Locked Loop (PLL) with digital circuitry. The primary purpose of an
 ADPLL is to generate a stable, high-frequency clock that remains synchronized with a lower-frequency reference clock.
@@ -16,7 +16,7 @@ their scalability, flexibility, lower power consumption, and compatibility with 
 have made ADPLLs the preferred choice for next-generation high-performance clock generation and synchronization
 applications.
 
-Design Specifications:
-Reference frequency:        100 MHz
-DCO free running frequency: 3.5 GHz
+Design Specifications:  
+Reference frequency:        100 MHz  
+DCO free running frequency: 3.5 GHz  
 Target frequency Range:     3 GHz – 4 GHz
