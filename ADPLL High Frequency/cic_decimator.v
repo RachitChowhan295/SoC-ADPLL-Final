@@ -20,7 +20,7 @@ module cic_decimator #(
     wire signed [28:0] diff1_now = acc2_next - acc2_z1;
     wire signed [28:0] diff2_now = diff1_now - diff1_z1;
 
-    // 29-bit accumulator needs 4 bits of sign extension on the 25-bit input
+    
     wire signed [28:0] acc1_next = acc1 + $signed({{4{phase_residual[24]}}, phase_residual});
     wire signed [28:0] acc2_next = acc2 + acc1_next;
 
