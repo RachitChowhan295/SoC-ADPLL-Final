@@ -4,28 +4,31 @@ module gain_scheduler #(
     parameter ERR_W   = 25,   
     parameter SHIFT_W = 5,    
 
-    // ---- Phase Thresholds ----
+    // phase thresholds 
     parameter [ERR_W-1:0] TH_LARGE  = 32'd2500,  
     parameter [ERR_W-1:0] TH_MED    = 32'd1200,   
     parameter [ERR_W-1:0] TH_FREQ   = 32'd1000, 
 
-   // ---- Gain sets ----
-    // FLL GAINS: Pure integral tracking for fast frequency pull-in
+   // gain sets 
+    // FLL gains
     parameter [SHIFT_W-1:0] KP_SHIFT_FLL   = 5'd31, 
     parameter [SHIFT_W-1:0] KI_SHIFT_FLL   = 5'd4,  
 
-    // LARGE GAINS: Fast phase acquisition (Zeta = 0.78, Critically Damped)
-    // Kp = 1/4, Ki = 1/1024
+    // large gains
+    // Kp = 1/4
+    // Ki = 1/1024
     parameter [SHIFT_W-1:0] KP_SHIFT_LARGE = 5'd2,  
     parameter [SHIFT_W-1:0] KI_SHIFT_LARGE = 5'd10,  
 
-    // MEDIUM GAINS: Transition smoothing (Zeta = 1.1, Overdamped)
-    // Kp = 1/8, Ki = 1/8192
+    // medium gains
+    // Kp = 1/8
+    // Ki = 1/8192
     parameter [SHIFT_W-1:0] KP_SHIFT_MED   = 5'd2,  
     parameter [SHIFT_W-1:0] KI_SHIFT_MED   = 5'd11,  
 
-    // FINE GAINS: Max jitter rejection (Zeta = 1.56, Heavily Overdamped)
-    // Kp = 1/16, Ki = 1/65536
+    // fine gains
+    // Kp = 1/16
+    // Ki = 1/65536
     parameter [SHIFT_W-1:0] KP_SHIFT_FINE  = 5'd3,  
     parameter [SHIFT_W-1:0] KI_SHIFT_FINE  = 5'd13,
 
