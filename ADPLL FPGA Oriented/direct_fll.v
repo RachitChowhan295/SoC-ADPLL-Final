@@ -14,14 +14,14 @@ module direct_fll (
     localparam integer DIV100_SHIFT = 17;
     localparam integer DIV100_MAGIC = 1311;
 
-    // 1. 13-bit DCO Edge Counter (Runs at High Speed)
+    // 1. 13-bit DCO Edge Counter (runs at high speed)
     reg [12:0] dco_count;
     always @(posedge dco_clk or posedge rst) begin
         if (rst) dco_count <= 0;
         else dco_count <= dco_count + 1;
     end
 
-    // 2. Safely cross the fast counter into the Ref Clock domain
+    // 2. cross the fast counter into the Ref Clock domain
     wire [12:0] dco_count_gray = dco_count ^ (dco_count >> 1);
     (* ASYNC_REG = "TRUE" *) reg [12:0] gray_sync1, gray_sync2;
     always @(posedge ref_clk or posedge rst) begin
@@ -34,7 +34,7 @@ module direct_fll (
         end
     end
 
-    // 3. Gray to Binary Decoder
+    // 3. gray to binary decoder
     reg [12:0] bin_sync;
     integer i;
     always @(*) begin
@@ -44,14 +44,14 @@ module direct_fll (
         end
     end
 
-    // 4. Time Window Generator (Count over 16 Ref Cycles)
+    // 4. time window generator 
     reg [3:0] ref_cnt;
     reg [12:0] bin_sync_prev;
     reg signed [12:0] freq_err; 
     reg update_fll;
 
-    wire [10:0] k_mod_scaled  = K_mod << 4;                                   // 0..2032
-    wire [12:0] k_mod_div100  = (k_mod_scaled * DIV100_MAGIC) >> DIV100_SHIFT; // == k_mod_scaled/100
+    wire [10:0] k_mod_scaled  = K_mod << 4;                                   
+    wire [12:0] k_mod_div100  = (k_mod_scaled * DIV100_MAGIC) >> DIV100_SHIFT; 
     wire [12:0] target_16     = {N_int, 4'b0000} + k_mod_div100;
 
     wire [12:0] actual_cycles = bin_sync - bin_sync_prev;
@@ -82,7 +82,7 @@ module direct_fll (
             lock_timer <= 0;
         end else if (update_fll) begin
             if (!fll_locked) begin
-                fll_ctrl <= fll_ctrl - (freq_err <<< 4); // x*16 == x<<<4, explicit shift instead of a multiplier
+                fll_ctrl <= fll_ctrl - (freq_err <<< 4); 
             end
 
             if (freq_err >= -2 && freq_err <= 2) begin
