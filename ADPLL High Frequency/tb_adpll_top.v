@@ -2,12 +2,11 @@
 
 module tb_adpll_top();
 
-    // ─── 0. LC DCO TUNING ───────────────────────────────────────────
-    parameter real DCO_FREE_RUN_HZ = 3500_000_000.0; // f0 at ctrl_word = 0
-    parameter real KDCO_HZ_PER_LSB = 20000.0;        // Hz per LSB, set to any value
+    parameter real DCO_FREE_RUN_HZ = 3500_000_000.0; 
+    parameter real KDCO_HZ_PER_LSB = 20000.0;        
     localparam real REF_HZ = 100_000_000.0;
 
-    // ─── 1. SYSTEM SIGNALS ──────────────────────────────────────────
+    // system signals
     reg  ref_clk;
     reg  rst;
 
@@ -22,7 +21,7 @@ module tb_adpll_top();
     wire fb_clk;  
     wire [6:0] N_div;
 
-    // ─── 2. DUT INSTANTIATION ───────────────────────────────────────
+    // dut instantiation
     adpll_top #(
         .REF_HZ(100_000_000), 
         .DCO_FREE_RUN_HZ(DCO_FREE_RUN_HZ),
@@ -38,28 +37,23 @@ module tb_adpll_top();
         .N_div(N_div)
     );
 
-    // ─── 3. CLOCK GENERATION (100 MHz) ──────────────────────────────
+    // clock generation
     initial begin
         ref_clk = 1'b0;
-        forever #5 ref_clk = ~ref_clk; //  100 MHz     
+        forever #5 ref_clk = ~ref_clk; 
     end
     
-    // ─── 3.5 FREQUENCY MEASUREMENT (VIA HIERARCHICAL PROBE) ─────────
     real measured_freq_mhz = 0.0;
     realtime last_edge = 0.0;
 
-    // Probing the internal dco_clk directly inside the DUT
     always @(posedge dut.dco_clk) begin
         if (last_edge > 0.0) begin
-            // $realtime returns time in nanoseconds based on the 1ns timescale.
-            // Period (ns) = $realtime - last_edge
-            // Frequency (MHz) = 1000 / Period (ns)
             measured_freq_mhz = 1000.0 / ($realtime - last_edge);
         end
         last_edge = $realtime;
     end
 
-    // ─── 4. TELEMETRY PRINTOUT ──────────────────────────────────────
+    // telemetry printout
     integer cycle_count = 0;
     always @(posedge ref_clk) begin
         if (!rst) cycle_count = cycle_count + 1;
@@ -70,7 +64,7 @@ module tb_adpll_top();
         end
     end
 
-    // ─── 5. STIMULUS AND RUN ────────────────────────────────────────
+    // stimulus and run
     real target_freq_mhz;
 
     initial begin
@@ -91,7 +85,7 @@ module tb_adpll_top();
         rst = 1'b1;
         #25;
         rst = 1'b0;
-        #1000000; // Run for 1 ms
+        #1000000; 
 
         $display("==================================================");
         $display("► Full Simulation Complete.");        
