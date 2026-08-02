@@ -2,8 +2,8 @@
 
 module adpll_top #(
     parameter integer REF_HZ           = 2_000_000,     
-    parameter real    DCO_FREE_RUN_HZ  = 70_000_000.0,  // LC DCO free-running frequency at ctrl_word=0
-    parameter real    DCO_KDCO_HZ_LSB  = 400.0           // LC DCO gain, Hz per LSB of ctrl_word
+    parameter real    DCO_FREE_RUN_HZ  = 70_000_000.0,  // free-running frequency at ctrl_word=0
+    parameter real    DCO_KDCO_HZ_LSB  = 400.0           // Hz per LSB of ctrl_word gain
 )(
     input wire ref_clk,
     input wire rst,
@@ -24,9 +24,8 @@ module adpll_top #(
     
     wire int_mode = (K_mod == 0)? 1'd1 : 1'd0;
 
-    // ==========================================
-    // 1. True Counter-Based FLL (Fast Acquisition)
-    // ==========================================
+    
+    // 1. Counter-Based FLL
     wire fll_locked;
     wire signed [15:0] fll_ctrl;
     
@@ -40,9 +39,8 @@ module adpll_top #(
         .fll_locked(fll_locked)
     );
 
-    // ==========================================
-    // 2. Standard Phase Tracking (Runs after FLL)
-    // ==========================================
+    
+    // 2. Phase Tracking 
     phase_detector pd_inst (
         .ref_clk(ref_clk), 
         .fb_clk(fb_clk), 
@@ -93,7 +91,7 @@ module adpll_top #(
     wire [4:0] current_kp_shift;
     wire [4:0] current_ki_shift;
 
-    // Gain scheduler reinstated for multi-channel dynamic tuning
+    // gain scheduler reinstated for multi-channel dynamic tuning
     gain_scheduler #(
         .ERR_W(25),
         .SHIFT_W(5)
@@ -109,7 +107,7 @@ module adpll_top #(
     wire signed [15:0] pll_ctrl;
     wire pll_enable = do_update & fll_locked;
 
-    // Filter accepts dynamic shifts again, retaining the 20-bit ACCUM_W optimization
+    // filter accepts dynamic shifts again, retaining the 20-bit ACCUM_W optimization
     pi_loop_filter #(
         .ERR_W(25),
         .SHIFT_W(5),
@@ -124,16 +122,11 @@ module adpll_top #(
         .ctrl_word(pll_ctrl)
     );
     
-    // ==========================================
-    // 3. Final Summation & DCO
-    // ==========================================
-   // ==========================================
-    // 3. Final Summation & DCO
-    // ==========================================
-    // 1. Use a 17-bit wire to capture the sum safely without overflowing
+
+    // 1. 17 bit wire to capture the sum without overflowing
     wire signed [16:0] sum_ctrl = $signed(fll_ctrl) + $signed(pll_ctrl);
     
-    // 2. Clamp the result to 16 bits
+    // 2. clamp the result to 16 bits
     wire signed [15:0] final_ctrl_word;
     assign final_ctrl_word = (!fll_locked) ? fll_ctrl :
                              (sum_ctrl > 32767)  ? 16'sd32767 :
