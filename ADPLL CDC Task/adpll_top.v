@@ -2,18 +2,16 @@
 
 module adpll_top #(
     parameter integer REF_HZ           = 2_000_000,
-    // Digital NCO parameters instead of analog ones
     parameter integer ACC_WIDTH        = 32,
     parameter [31:0]  FTW_FREE         = 32'd751619277,
     parameter signed [31:0] KO_SCALE   = 32'sd4295
 )(
     input  wire        ref_clk,
-    input  wire        clk_fast, // Required for the digital NCO
+    input  wire        clk_fast, 
     input  wire        rst,
     input  wire [6:0]  N_int,
     input  wire [6:0]  K_mod,
     
-    // Core outputs
     output wire signed [24:0] phase_residual,
     output wire signed [15:0] ctrl_word_out,
     output wire        fb_clk,
@@ -21,7 +19,6 @@ module adpll_top #(
     output wire        lock,
     output wire        dco_clk_out, 
 
-    // External FIFO Interface for Testbench
     input  wire        fifo_wr_en,
     input  wire [15:0] fifo_data_in,
     output wire        fifo_full,
@@ -102,13 +99,13 @@ module adpll_top #(
                              
     assign ctrl_word_out = final_ctrl_word;
     
-    // ---> FIXED: Using dco_nco with its correct digital parameters <---
+    
     dco_nco #(
         .ACC_WIDTH(ACC_WIDTH),
         .FTW_FREE(FTW_FREE),
         .KO_SCALE(KO_SCALE)
     ) inst (
-        .clk_fast(clk_fast), // Driven from testbench
+        .clk_fast(clk_fast), 
         .rst(rst), 
         .ctrl_word(-final_ctrl_word), 
         .dco_clk(dco_clk), 
