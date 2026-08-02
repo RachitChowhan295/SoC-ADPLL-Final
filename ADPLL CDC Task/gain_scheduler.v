@@ -4,25 +4,25 @@ module gain_scheduler #(
     parameter ERR_W   = 25,   
     parameter SHIFT_W = 5,    
 
-    // ---- Phase Thresholds ----
+    // these are phase thresholds 
     parameter [ERR_W-1:0] TH_LARGE  = 32'd2500,  
     parameter [ERR_W-1:0] TH_MED    = 32'd1200,   
     parameter [ERR_W-1:0] TH_FREQ   = 32'd1000, 
 
-   // ---- Gain sets ----
-    // FLL GAINS: Max integral gain
+   // these are gain sets
+    // FLL gains
     parameter [SHIFT_W-1:0] KP_SHIFT_FLL   = 5'd31, 
     parameter [SHIFT_W-1:0] KI_SHIFT_FLL   = 5'd0,  
 
-    // LARGE GAINS: Wide bandwidth (811 rad/s) for fast pull-in
+    // Large gains
     parameter [SHIFT_W-1:0] KP_SHIFT_LARGE = 5'd0,  
     parameter [SHIFT_W-1:0] KI_SHIFT_LARGE = 5'd10,  
 
-    // MEDIUM GAINS: Mid bandwidth (405 rad/s) for transition smoothing
+    // medium gains
     parameter [SHIFT_W-1:0] KP_SHIFT_MED   = 5'd1,  
     parameter [SHIFT_W-1:0] KI_SHIFT_MED   = 5'd12,  
 
-    // FINE GAINS: Narrow bandwidth (202 rad/s) for max jitter rejection
+    // fine gains
     parameter [SHIFT_W-1:0] KP_SHIFT_FINE  = 5'd2,  
     parameter [SHIFT_W-1:0] KI_SHIFT_FINE  = 5'd14,
 
