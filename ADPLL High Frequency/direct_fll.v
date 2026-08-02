@@ -1,9 +1,7 @@
 `timescale 1ns/1fs
 
 module direct_fll #(
-    // Widen counters to 24 bits to support massive DCO frequencies / large N_div
     parameter integer C_WIDTH = 24,       
-    // Allow parameterization of the FLL pull-in speed 
     parameter integer FLL_GAIN_SHIFT = 4  
 )(
     input  wire ref_clk,
@@ -19,18 +17,16 @@ module direct_fll #(
     localparam integer DIV100_SHIFT = 17;
     localparam integer DIV100_MAGIC = 1311;
 
-    // ==========================================
-    // 1. DCO Edge Counter (Runs at High Speed)
-    // ==========================================
+    
+    // 1. DCO Edge Counter 
     reg [C_WIDTH-1:0] dco_count;
     always @(posedge dco_clk or posedge rst) begin
         if (rst) dco_count <= 0;
         else dco_count <= dco_count + 1;
     end
 
-    // ==========================================
-    // 2. Safely cross the fast counter into Ref Clock
-    // ==========================================
+    
+    // 2. cross the fast counter into Ref Clock
     wire [C_WIDTH-1:0] dco_count_gray = dco_count ^ (dco_count >> 1);
     (* ASYNC_REG = "TRUE" *) reg [C_WIDTH-1:0] gray_sync1, gray_sync2;
     
@@ -44,9 +40,8 @@ module direct_fll #(
         end
     end
 
-    // ==========================================
-    // 3. Gray to Binary Decoder
-    // ==========================================
+    
+    // 3. gray to binary decoder
     reg [C_WIDTH-1:0] bin_sync;
     integer i;
     always @(*) begin
@@ -56,9 +51,8 @@ module direct_fll #(
         end
     end
 
-    // ==========================================
-    // 4. Time Window Generator (Count over 16 Ref Cycles)
-    // ==========================================
+    
+    // 4. time window generator
     reg [3:0] ref_cnt;
     reg [C_WIDTH-1:0] bin_sync_prev;
     reg signed [C_WIDTH-1:0] freq_err; 
@@ -67,7 +61,7 @@ module direct_fll #(
     wire [10:0] k_mod_scaled  = K_mod << 4;                                   
     wire [12:0] k_mod_div100  = (k_mod_scaled * DIV100_MAGIC) >> DIV100_SHIFT; 
     
-    // Abstracted shift allows N_int to naturally expand to C_WIDTH
+    
     wire [C_WIDTH-1:0] target_16 = (N_int << 4) + k_mod_div100;
     wire [C_WIDTH-1:0] actual_cycles = bin_sync - bin_sync_prev;
 
@@ -82,19 +76,15 @@ module direct_fll #(
             update_fll <= (ref_cnt == 4'd15);
             
             if (ref_cnt == 4'd15) begin
-                // Ensure correct signed arithmetic across arbitrary widths
                 freq_err <= $signed({1'b0, target_16}) - $signed({1'b0, actual_cycles});
                 bin_sync_prev <= bin_sync;
             end
         end
     end
     
-    // ==========================================
     // 5. FLL Integrator & Handoff
-    // ==========================================
-    reg [2:0] lock_timer; // Increased timer to avoid false locks on high frequencies
+    reg [2:0] lock_timer; // increased timer to avoid false locks on high frequencies
     
-    // Calculate integration safely in 32-bit space to prevent wrap-around
     wire signed [31:0] freq_err_shifted = freq_err <<< FLL_GAIN_SHIFT;
     wire signed [31:0] next_fll_ctrl_wide = $signed({{16{fll_ctrl[15]}}, fll_ctrl}) - freq_err_shifted;
 
@@ -106,7 +96,6 @@ module direct_fll #(
         end else if (update_fll) begin
             
             if (!fll_locked) begin
-                // Saturating math: Stop tracking if we hit the 16-bit roof/floor
                 if (next_fll_ctrl_wide > 32767)
                     fll_ctrl <= 16'd32767;
                 else if (next_fll_ctrl_wide < -32768)
@@ -115,7 +104,6 @@ module direct_fll #(
                     fll_ctrl <= next_fll_ctrl_wide[15:0];
             end
 
-            // Broadened error threshold (+/- 4) to accommodate aggressive KDCO configurations
             if (freq_err >= -4 && freq_err <= 4) begin
                 if (lock_timer < 3) lock_timer <= lock_timer + 1;
                 else fll_locked <= 1'b1;
