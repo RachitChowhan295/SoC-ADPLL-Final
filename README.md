@@ -16,7 +16,18 @@ their scalability, flexibility, lower power consumption, and compatibility with 
 have made ADPLLs the preferred choice for next-generation high-performance clock generation and synchronization
 applications.
 
-Design Specifications:  
+A little about this repo, This repo records the project status during mid evaluation and end evaluation. By end evaluation the
+project has 2 version one for FPGA use and another which is the ideal model that could nit be FPGA implemented due to DCO. There is another 
+folder that provides the files required in order to complete the bonus task of building a Clock Domain Crossing (CDC). For further information
+refer the project report uploaded in this repo. All files can be run using this verilog command on icarus verilog- 
+iverilog -g2012 -o full_soc_sim *.v; vvp full_soc_sim;
+
+Design Specifications for ADPLL High Frequency:  
 Reference frequency:        100 MHz  
 DCO free running frequency: 3.5 GHz  
 Target frequency Range:     3 GHz – 4 GHz
+
+Design Specifications for ADPLL FPGA Oriented:  
+Reference frequency:        2 MHz  
+DCO free running frequency: 70 MHz  
+Target frequency Range:     60MHz-80MHz
