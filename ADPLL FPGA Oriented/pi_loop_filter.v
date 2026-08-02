@@ -3,7 +3,7 @@
 module pi_loop_filter #(
     parameter ERR_W      = 25,  
     parameter SHIFT_W    = 5,   
-    parameter ACCUM_W    = 20,  // Stays reduced to 20 bits
+    parameter ACCUM_W    = 20,  
     parameter FRAC_BITS  = 16,
     parameter OUT_W      = 16,
     parameter signed [OUT_W-1:0] MAX_STEP = 16'sd4096,
@@ -26,22 +26,22 @@ module pi_loop_filter #(
     reg signed [ACCUM_W+FRAC_BITS-1:0] integrator;
     reg signed [ACCUM_W-1:0] ctrl_word_q;
 
-   // Sign-extend error
+
     wire signed [ACCUM_W+FRAC_BITS-1:0] error_ext;
     assign error_ext = $signed({{(ACCUM_W+FRAC_BITS-ERR_W){error[ERR_W-1]}}, error});
 
-    // 1. Define combinational wires for the shifted values
+    // 1. combinational wires for the shifted values
     wire signed [ACCUM_W-1:0]           p_term_comb;
     wire signed [ACCUM_W+FRAC_BITS-1:0] i_term_comb;
     
     assign p_term_comb = $signed(error_ext[ACCUM_W-1:0]) >>> kp_shift;
     assign i_term_comb = $signed(error_ext <<< FRAC_BITS) >>> ki_shift;
 
-    // 2. Define pipeline registers
+    // 2. pipeline registers
     reg signed [ACCUM_W-1:0]           p_term;
     reg signed [ACCUM_W+FRAC_BITS-1:0] i_term;
 
-    // 3. Clock the shifted values into the pipeline registers
+    // 3. clock the shifted values into the pipeline registers
     always @(posedge clk or posedge rst) begin
         if (rst) begin
             p_term <= 0;
@@ -53,7 +53,7 @@ module pi_loop_filter #(
         end
     end
 
-    // 4. Use the pipelined terms for integration and output
+    // 4. pipelined terms for integration and output
     wire signed [ACCUM_W+FRAC_BITS-1:0] integrator_next;
     wire signed [ACCUM_W-1:0]           pi_out;
 
@@ -63,7 +63,7 @@ module pi_loop_filter #(
     wire signed [ACCUM_W-1:0] ctrl_next;
     assign ctrl_next = pi_out;
     
-    // Slew-rate limiter logic
+    
     wire signed [ACCUM_W-1:0] ctrl_delta = ctrl_next - ctrl_word_q;
     wire signed [ACCUM_W-1:0] ctrl_next_limited =
     (ctrl_delta >  $signed({{(ACCUM_W-OUT_W){1'b0}}, MAX_STEP}))  ? ctrl_word_q + MAX_STEP :
