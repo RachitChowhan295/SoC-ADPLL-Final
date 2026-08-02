@@ -16,7 +16,7 @@ module tb_cdc_fifo();
     wire [15:0] fifo_data_out;
     wire        fifo_empty;
     
-    // Unused outputs
+    
     wire signed [24:0] phase_residual;
     wire signed [15:0] ctrl_word_out;
     wire fb_clk;
@@ -54,12 +54,11 @@ module tb_cdc_fifo();
     
     initial begin
         clk_fast = 0;
-        forever #1 clk_fast = ~clk_fast; // 500 MHz Fast Clock for logging and NCO
+        forever #1 clk_fast = ~clk_fast; // 500 MHz Fast Clock
     end
 
-    // ==========================================
-    // VCD WAVEFORM LOGGING
-    // ==========================================
+    
+    // VCD waveform logging
     initial begin
         $dumpfile("cdc_waveform.vcd");
         $dumpvars(0, tb_cdc_fifo);
@@ -73,9 +72,8 @@ module tb_cdc_fifo();
     integer expected_data = 1;
     integer errors = 0;
 
-    // ---------------------------------------------------------
+
     // Thread 1: Writer (ref_clk domain)
-    // ---------------------------------------------------------
     initial begin
         fifo_wr_en = 0;
         fifo_data_in = 0;
@@ -100,19 +98,16 @@ module tb_cdc_fifo();
         $display("Finished writing packets.");
     end
 
-    // ---------------------------------------------------------
+    
     // Thread 2: Reader (dco_clk_out domain)
-    // ---------------------------------------------------------
     initial begin
         fifo_rd_en = 0;
         @(negedge rst);
         
-        // --- WAVEFORM DEMONSTRATION STALL ---
-        // Purposely stall the reader until the FIFO asserts the FULL flag.
-        // This ensures the VCD captures the buffer filling up perfectly.
+        // waveform demonstration stall
         wait(fifo_full == 1'b1);
-        #2000; // Hold the full state for a couple of microseconds for the plot
-        // ------------------------------------
+        #2000; 
+        
 
         while (packets_received < TEST_PACKETS) begin
             @(negedge dco_clk_out);
