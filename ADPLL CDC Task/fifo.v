@@ -27,9 +27,8 @@ module async_fifo #(
     (* ASYNC_REG = "TRUE" *) reg [ADDR_WIDTH:0] wr_ptr_gray_sync1, wr_ptr_gray_sync2;
     (* ASYNC_REG = "TRUE" *) reg [ADDR_WIDTH:0] rd_ptr_gray_sync1, rd_ptr_gray_sync2;
 
-    // ---------------------------------------------------------
-    // Write Domain Logic
-    // ---------------------------------------------------------
+    
+    // writing domain logic    
     wire [ADDR_WIDTH:0] wr_ptr_bin_next = wr_ptr_bin + (wr_en & ~full);
     wire [ADDR_WIDTH:0] wr_ptr_gray_next = (wr_ptr_bin_next >> 1) ^ wr_ptr_bin_next;
     
@@ -59,9 +58,8 @@ module async_fifo #(
         end
     end
 
-    // ---------------------------------------------------------
-    // Read Domain Logic
-    // ---------------------------------------------------------
+    
+    // read domain logic
     wire [ADDR_WIDTH:0] rd_ptr_bin_next = rd_ptr_bin + (rd_en & ~empty);
     wire [ADDR_WIDTH:0] rd_ptr_gray_next = (rd_ptr_bin_next >> 1) ^ rd_ptr_bin_next;
     
