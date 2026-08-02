@@ -19,15 +19,15 @@ module dtc_model #(
 localparam [6:0] F_mod = 7'd100;
 
 localparam integer DIV100_SHIFT = 17;
-localparam integer DIV100_MAGIC = 1311;  // for /F_mod  (F_mod = 100)
+localparam integer DIV100_MAGIC = 1311; 
 localparam integer DIV31_SHIFT  = 17;
-localparam integer DIV31_MAGIC  = 4229;  // for /MAX_CODE (MAX_CODE = 31)
+localparam integer DIV31_MAGIC  = 4229;  // MAX_CODE is 31
 
-reg [7:0]  phase_fract;          // true range is 0..128 -> 8 bits (was signed [24:0])
+reg [7:0]  phase_fract;          
 reg signed [24:0] phase_residual_next;
 reg [4:0] dtc_code_next;
 
-reg [11:0] temp_code;             // true range is 0..~3987 -> 12 bits (was 32-bit integer)
+reg [11:0] temp_code;             
 
 always @(*) begin
     temp_code = 12'd0;
@@ -42,8 +42,8 @@ always @(*) begin
             if (c2_prev && temp_code > 0)
                 temp_code = temp_code - 1;
 
-            // temp_code is built entirely from unsigned, non-negative operands,
-            // so it can never go below 0 -- the original "< 0" clamp was dead code.
+            // temp_code built from unsigned, non-negative operands,
+            // it can never go below 0
             if (temp_code > MAX_CODE)
                 temp_code = MAX_CODE;
 
