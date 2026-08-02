@@ -2,7 +2,7 @@
 
 module tb_adpll_top();
 
-    // ─── 1. SYSTEM SIGNALS ──────────────────────────────────────────
+    // system signals
     reg  ref_clk;
     reg  rst;
     reg board_clk;
@@ -19,7 +19,7 @@ module tb_adpll_top();
 
     wire [5:0]N_div;
 
-    // ─── 2. DUT INSTANTIATION ───────────────────────────────────────
+    // dut instantiation
     adpll_top dut (
         .ref_clk(ref_clk),
         .fb_clk(fb_clk),
@@ -32,21 +32,20 @@ module tb_adpll_top();
         .N_div(N_div)
     );
 
-    // ─── 3. CLOCK GENERATION (100 MHz) ──────────────────────────────
+    // clock generation
     initial begin
         ref_clk = 1'b0;
-        forever #250.0 ref_clk = ~ref_clk; // 500ns period = 2 MHz     //prevValue=5
+        forever #250.0 ref_clk = ~ref_clk; 
     end
 
-    //Board clock generation (10GHz)
+    // board clock generation 
     initial begin
         board_clk = 1'b0;
-        forever #1.25 board_clk = ~board_clk; //2.5ns period = 400MHz       //prevValue=0.05
+        forever #1.25 board_clk = ~board_clk; 
     end
 
 
-    //Verification of Mash mash_modulator
-    // ─── Average N_div monitor ──────────────────────────────
+    
     real ndiv_sum = 0.0;
     integer ndiv_count = 0;
     real ndiv_average;
@@ -58,7 +57,7 @@ module tb_adpll_top();
         end
     end
 
-    // Call this task periodically (or at end of sim) to check convergence
+    
     task print_ndiv_average;
         begin
             ndiv_average = ndiv_sum / ndiv_count;
@@ -67,13 +66,13 @@ module tb_adpll_top();
         end
     endtask
 
-    // ─── 4. PHYSICAL FREQUENCY COUNTER ──────────────────────────────
+    
     real last_edge_time = 0.0;
     real period_sum_ns = 0.0;
     integer period_count = 0;
     real measured_freq_mhz = 0.0;
 
-    parameter AVG_EDGES = 100; // average over 100 edges
+    parameter AVG_EDGES = 100; 
 
     always @(posedge dut.dco_clk) begin
         if (!rst) begin
@@ -97,7 +96,7 @@ module tb_adpll_top();
     end
 
 
-    // ─── 5. TELEMETRY PRINTOUT ──────────────────────────────────────
+    
     integer cycle_count = 0;
     always @(posedge ref_clk) begin
         if (!rst) cycle_count = cycle_count + 1;
@@ -108,7 +107,7 @@ module tb_adpll_top();
         end
     end
 
-    // ─── 6. STIMULUS AND RUN ────────────────────────────────────────
+    
     initial begin
         $dumpfile("adpll_top.vcd");
         $dumpvars(0, tb_adpll_top);
@@ -124,7 +123,7 @@ module tb_adpll_top();
         rst = 1'b1;
         #25;
         rst = 1'b0;
-        #15000000; // Run for 20us
+        #15000000; 
 
         $display("==================================================");
         $display("► Full Simulation Complete.");
