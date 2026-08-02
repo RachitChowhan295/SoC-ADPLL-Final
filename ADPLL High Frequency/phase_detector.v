@@ -8,7 +8,7 @@ module phase_detector(
 
 reg [23:0] phase_ref;
 
-//Reference phase accumulator
+// reference phase accumulator
 always@(posedge ref_clk or posedge rst) begin
     if(rst)
         phase_ref <= 24'd0;
@@ -16,7 +16,7 @@ always@(posedge ref_clk or posedge rst) begin
         phase_ref <= phase_ref + 24'd1;
 end
 
-//Feedback phase accumulator
+// reedback phase accumulator
 reg[23:0] phase_fb_bin;
 always@(posedge fb_clk or posedge rst) begin
     if(rst)
@@ -25,11 +25,11 @@ always@(posedge fb_clk or posedge rst) begin
         phase_fb_bin <= phase_fb_bin + 24'd1;
 end
 
-//Binary to gray code
+// binary to gray code
 wire [23:0]phase_fb_gray;
 assign phase_fb_gray = (phase_fb_bin) ^ (phase_fb_bin >> 1);
 
-//2-FF synchronizer
+// 2-FF synchronizer
 (* ASYNC_REG = "TRUE" *) reg [23:0] gray_sync1;
 (* ASYNC_REG = "TRUE" *) reg [23:0] gray_sync2;
 
@@ -44,7 +44,7 @@ always@(posedge ref_clk or posedge rst) begin
     end
 end
 
-//Gray to Binary
+// gray to binary
 wire [23:0]phase_fb_bin_sync;
 genvar i;
 generate 
@@ -53,7 +53,7 @@ generate
         assign phase_fb_bin_sync[i] = phase_fb_bin_sync[i+1] ^ gray_sync2[i];
 endgenerate
 
-//Phase error calculation
+// phase error calculation
 always@(posedge ref_clk or posedge rst) begin
     if(rst)
         phase_error <= 25'sd0;
